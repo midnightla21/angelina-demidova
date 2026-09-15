@@ -47,6 +47,18 @@ h1,h2,h3,p,figure,blockquote { margin:0; }
 .hero-statement { text-align:right; }
 .hero-statement a { display:block; margin-top:9px; opacity:.65; }
 .hero-statement a:hover { opacity:1; }
+.hero-booking { position:absolute; z-index:30; right:40px; bottom:156px; width:min(420px,calc(100% - 80px)); }
+.hero-booking-label { display:block; margin-bottom:12px; font-size:16px; line-height:1.3; }
+.hero-booking-links { display:grid; grid-template-columns:1fr 1fr; gap:10px; }
+.hero-booking-link { min-width:0; min-height:72px; display:flex; justify-content:space-between; align-items:center; gap:12px; padding:14px 16px; color:var(--ink); background:var(--cream); font-size:16px; line-height:1.25; transition:background-color .2s; }
+.hero-booking-link:hover { background:#d8c9aa; }
+.hero-booking-link small { display:block; margin-top:5px; font-size:12px; line-height:1.4; color:#56574e; }
+.hero-booking-link:focus-visible { outline-color:var(--cream); }
+@media(max-width:639px) {
+  .hero-booking { left:24px; right:24px; bottom:178px; width:auto; }
+  .hero-booking-links { gap:8px; }
+  .hero-booking-link { padding:12px; min-height:70px; gap:8px; font-size:15px; }
+}
 .mobile-menu-button { display:none; }
 .entrance { animation:fade-up .9s cubic-bezier(.22,1,.36,1) both; }
 .section { padding:76px clamp(24px,5.55vw,96px) 104px; }

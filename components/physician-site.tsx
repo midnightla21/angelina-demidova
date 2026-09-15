@@ -10,6 +10,8 @@ import type { Dictionary } from '@/lib/i18n';
 
 const medsi = 'https://medsi.ru/doctors/demidova-angelina-olegovna/';
 const sm = 'https://www.smclinic.ru/rezume/demidova-angelina-olegovna/';
+const medsiBooking = 'https://smartmed.pro/doctors/s/e8af5eda-b36c-42cb-a5ba-2d63c50a38c4/?isRecordable=true';
+const smBooking = 'https://www.smclinic.ru/appointment/?doctorId=79a2862d-faa1-11eb-80c4-00505687cb95';
 const reviews = 'https://napopravku.ru/moskva/doctor-profile/demidova-angelina-olegovna/';
 const interview = 'https://izhlife.ru/beautyandhealth/87932-est-li-spasenie-ot-gemorroya.html';
 function Lines({ text }: { text: string }) { return text.split('\n').map((line, i) => <Fragment key={i}>{i > 0 && <br />}{line}</Fragment>); }
@@ -70,6 +72,13 @@ export default function PhysicianSite({ locale, t }: { locale: Locale; t: Dictio
         <h1 className="sr-only">{t.h1}</h1>
         <div className={`name-window${portraitReady ? ' is-ready entrance' : ''}`} style={{ animationDelay: '150ms' }} aria-hidden="true"><div className="name-track"><span>{t.name}</span><span>{t.name}</span></div></div>
         <img className="hero-photo hero-foreground" src="/images/angelina-original.jpg" alt="" aria-hidden="true" />
+        <nav className="hero-booking" aria-label={t.navAppointment}>
+          <span className="hero-booking-label">{t.book}</span>
+          <div className="hero-booking-links">
+            <External className="hero-booking-link" href={medsiBooking}><span>{t.medsi}<small>{t.solyanka} · SmartMed</small></span></External>
+            <External className="hero-booking-link" href={smBooking}><span>{t.sm}<small>{t.textilshchiki}</small></span></External>
+          </div>
+        </nav>
         <div className="hero-rule" />
         <div className="hero-footer"><div className="entrance" style={{ animationDelay: '1400ms' }}>{t.surgeon}<br />{t.coloproctologist}<br /><span className="hero-city">{t.city}</span></div><div className="hero-statement entrance" style={{ animationDelay: '1550ms' }}><Lines text={t.heroStatement} /><a href="#approach">{t.myApproach} <span aria-hidden="true">↓</span></a></div></div>
       </section>
@@ -105,7 +114,7 @@ export default function PhysicianSite({ locale, t }: { locale: Locale; t: Dictio
       <section className="section appointment dark" id="appointment">
         <SectionLabel n="06">{t.appointmentLabel}</SectionLabel>
         <Heading start={t.appointmentHeading} end={t.appointmentHeadingMuted} /><p className="appointment-intro"><Lines text={t.appointmentIntro} /></p>
-        <div className="clinics"><External className="clinic" href={medsi}><h3>{t.medsi}<span>{t.solyanka}</span></h3><p><Lines text={t.solyankaAddress} /><span>{t.solyankaMetro}</span></p><span className="clinic-action">{t.book}</span></External><External className="clinic" href={sm}><h3>{t.sm}<span>{t.textilshchiki}</span></h3><p><Lines text={t.textilshchikiAddress} /><span>{t.textilshchikiMetro}</span></p><span className="clinic-action">{t.book}</span></External></div>
+        <div className="clinics"><External className="clinic" href={medsiBooking}><h3>{t.medsi}<span>{t.solyanka}</span></h3><p><Lines text={t.solyankaAddress} /><span>{t.solyankaMetro}</span></p><span className="clinic-action">{t.book}</span></External><External className="clinic" href={smBooking}><h3>{t.sm}<span>{t.textilshchiki}</span></h3><p><Lines text={t.textilshchikiAddress} /><span>{t.textilshchikiMetro}</span></p><span className="clinic-action">{t.book}</span></External></div>
         {locale !== 'ru' && <p className="booking-language-note">{t.bookingLanguageNote}</p>}
         <p className="medical-note">{t.medicalNote}</p>
       </section>
