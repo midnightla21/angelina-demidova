@@ -117,5 +117,15 @@
   "bookingLanguageNote": "Trang đặt lịch của phòng khám sẽ mở bằng tiếng Nga. Bạn có thể hỏi về ngôn ngữ tư vấn khi đặt lịch.",
   "medicalNote": "Thông tin về hoạt động của bác sĩ không thay thế việc khám trực tiếp. Các phương pháp điều trị có chống chỉ định và được lựa chọn riêng cho từng người.",
   "pauseMotion": "Tạm dừng chuyển động",
-  "resumeMotion": "Bật chuyển động"
+  "resumeMotion": "Bật chuyển động",
+  "galleryLabel": "Ngoài phòng khám",
+  "galleryHeading": "Một vài khoảnh khắc.",
+  "galleryHeadingMuted": "Gần gũi hơn một chút.",
+  "galleryHint": "Vuốt hoặc kéo để xem",
+  "galleryOpen": "Mở ảnh",
+  "galleryClose": "Đóng ảnh",
+  "galleryPrevious": "Ảnh trước",
+  "galleryNext": "Ảnh tiếp theo",
+  "galleryPortrait": "Angelina Demidova. Chân dung trong studio",
+  "galleryCount": "trên"
 }

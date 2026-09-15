@@ -117,5 +117,15 @@
   "bookingLanguageNote": "预约将跳转至诊所的俄语网站。您可在预约时确认就诊可使用的语言。",
   "medicalNote": "本网站的医生诊疗信息不能替代面诊。各治疗方法均有禁忌证，须根据个人情况选择。",
   "pauseMotion": "暂停动态效果",
-  "resumeMotion": "启用动态效果"
+  "resumeMotion": "启用动态效果",
+  "galleryLabel": "诊室之外",
+  "galleryHeading": "几个瞬间。",
+  "galleryHeadingMuted": "再靠近一点。",
+  "galleryHint": "滑动或拖动浏览",
+  "galleryOpen": "查看照片",
+  "galleryClose": "关闭照片",
+  "galleryPrevious": "上一张照片",
+  "galleryNext": "下一张照片",
+  "galleryPortrait": "Angelina Demidova · 棚拍肖像",
+  "galleryCount": "/"
 }

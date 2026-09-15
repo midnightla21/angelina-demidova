@@ -117,5 +117,15 @@
   "bookingLanguageNote": "Booking opens on the clinic's Russian-language website. Please confirm the consultation language when booking.",
   "medicalNote": "Information about the doctor's practice does not replace an in-person consultation. Treatments have contraindications and are selected individually.",
   "pauseMotion": "Pause motion",
-  "resumeMotion": "Resume motion"
+  "resumeMotion": "Resume motion",
+  "galleryLabel": "Beyond the clinic",
+  "galleryHeading": "A few moments.",
+  "galleryHeadingMuted": "A little closer.",
+  "galleryHint": "Swipe or drag to explore",
+  "galleryOpen": "Open photo",
+  "galleryClose": "Close photo",
+  "galleryPrevious": "Previous photo",
+  "galleryNext": "Next photo",
+  "galleryPortrait": "Angelina Demidova. Studio portrait",
+  "galleryCount": "of"
 }
