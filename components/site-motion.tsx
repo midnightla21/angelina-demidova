@@ -4,7 +4,7 @@ import { Fragment, useEffect, type RefObject } from 'react';
 
 export function MotionWords({ text }: { text: string }) {
   let index = 0;
-  return <span className="motion-words"><span className="sr-only">{text}</span><span aria-hidden="true">{text.split('\n').map((line, lineIndex) => <Fragment key={lineIndex}>{lineIndex > 0 && <br />}{( /[\u4e00-\u9fff]/.test(line) ? Array.from(line) : line.split(/(\s+)/)).map((word, i) => /^\s+$/.test(word) ? word : <span className="word-wrap" key={i}><span className="word" style={{ '--word-i': index++ } as React.CSSProperties}>{word}</span></span>)}</Fragment>)}</span></span>;
+  return <span className="motion-words"><span aria-hidden="true">{text.split('\n').map((line, lineIndex) => <Fragment key={lineIndex}>{lineIndex > 0 && <br />}{( /[\u4e00-\u9fff]/.test(line) ? Array.from(line) : line.split(/(\s+)/)).map((word, i) => /^\s+$/.test(word) ? word : <span className="word-wrap" key={i}><span className="word" style={{ '--word-i': index++ } as React.CSSProperties}>{word}</span></span>)}</Fragment>)}</span></span>;
 }
 
 /** One scheduled frame per scroll event; no animation loop while the page is idle. */
@@ -19,7 +19,7 @@ export function useSiteMotion(rootRef: RefObject<HTMLElement | null>, paused: bo
     const hero = root.querySelector<HTMLElement>('.hero-scene');
     const care = root.querySelector<HTMLElement>('.care-steps');
     const practice = root.querySelector<HTMLElement>('.practice h2');
-    const quotes = [...root.querySelectorAll<HTMLElement>('.quotes figure')];
+    const photos = [...root.querySelectorAll<HTMLElement>('[data-image-scene]')];
     const progress = (value: number) => Math.max(0, Math.min(1, value));
     const update = () => {
       frame = 0;
@@ -39,9 +39,11 @@ export function useSiteMotion(rootRef: RefObject<HTMLElement | null>, paused: bo
         const p = progress((height * .9 - practice.getBoundingClientRect().top) / (height * .65));
         practice.style.setProperty('--read-p', p.toFixed(4));
       }
-      quotes.forEach((quote) => {
-        const p = progress((height - quote.getBoundingClientRect().top) / height);
-        quote.style.setProperty('--quote-p', p.toFixed(4));
+      photos.forEach((photo) => {
+        const rect = photo.getBoundingClientRect();
+        if (rect.bottom < -100 || rect.top > height + 100) return;
+        const p = progress((height - rect.top) / (height + rect.height));
+        photo.style.setProperty('--photo-p', p.toFixed(4));
       });
     };
     const schedule = () => { if (!frame) frame = requestAnimationFrame(update); };

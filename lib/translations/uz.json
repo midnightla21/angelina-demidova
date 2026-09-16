@@ -117,15 +117,5 @@
   "bookingLanguageNote": "Qabulga yozilish uchun klinikaning rus tilidagi sayti ochiladi. Maslahat qaysi tilda o‘tishini yozilish paytida aniqlashtirish mumkin.",
   "medicalNote": "Shifokor amaliyoti haqidagi ma’lumot yuzma-yuz maslahat o‘rnini bosmaydi. Davolash usullarining qarshi ko‘rsatmalari bor va ular individual tanlanadi.",
   "pauseMotion": "Harakatni to‘xtatish",
-  "resumeMotion": "Harakatni yoqish",
-  "galleryLabel": "Qabul xonasidan tashqarida",
-  "galleryHeading": "Bir necha lahza.",
-  "galleryHeadingMuted": "Biroz yaqinroq.",
-  "galleryHint": "Surib yoki sudrab ko‘ring",
-  "galleryOpen": "Suratni ochish",
-  "galleryClose": "Suratni yopish",
-  "galleryPrevious": "Oldingi surat",
-  "galleryNext": "Keyingi surat",
-  "galleryPortrait": "Angelina Demidova. Studiyadagi portret",
-  "galleryCount": "/"
+  "resumeMotion": "Harakatni yoqish"
 }
