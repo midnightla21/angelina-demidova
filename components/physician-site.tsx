@@ -7,6 +7,7 @@ import { Accordion, AccordionItem, AccordionTrigger, AccordionContent } from '@/
 import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem } from '@/components/ui/dropdown-menu';
 import { languages, localePath, type Locale } from '@/lib/locales';
 import { MotionWords, useSiteMotion } from '@/components/site-motion';
+import { SurgicalThread } from '@/components/surgical-thread';
 import type { Dictionary } from '@/lib/i18n';
 
 const medsi = 'https://medsi.ru/doctors/demidova-angelina-olegovna/';
@@ -53,6 +54,7 @@ export default function PhysicianSite({ locale, t }: { locale: Locale; t: Dictio
   }, []);
   return (
     <main ref={root} className={`locale-${locale}${paused ? ' motion-paused' : ''}`}>
+      <SurgicalThread rootRef={root} paused={paused} />
       <a className="skip-link" href="#approach">{t.skipContent}</a>
       <section className="hero-scene" id="top" aria-label={t.heroLabel}><div className="hero-stage"><div className="hero">
         <img className="hero-photo hero-background" src="/images/angelina-original.jpg" alt="" fetchPriority="high" />

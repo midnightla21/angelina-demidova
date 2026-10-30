@@ -11,6 +11,16 @@
   --font-sans: 'Helvetica Neue ME', 'Helvetica Neue', Helvetica, Arial, sans-serif;
 }
 :root { color-scheme: light; --cream:#efeee9; --ink:#171717; --muted:#85857b; }
+main { position:relative; isolation:isolate; }
+.surgical-thread { position:absolute; top:0; left:0; width:100%; height:0; z-index:35; overflow:hidden; pointer-events:none; visibility:hidden; }
+.surgical-thread[data-ready=true] { visibility:visible; }
+.suture-line { stroke-width:1.8; stroke-linecap:round; stroke-linejoin:round; }
+.suture-shadow { stroke:#111b24; stroke-opacity:.12; stroke-width:4; transform:translate(1px,2px); }
+.suture-needle { filter:drop-shadow(1px 2px 1px #0005); }
+.suture-stitch { stroke-linecap:round; }
+.suture-entry { fill:#6d7c83; stroke:none; opacity:.5; }
+.surgical-thread[data-static=true] .suture-line { opacity:.55; }
+@media(max-width:759px) { .suture-line { stroke-width:1.25; } .suture-shadow { stroke-width:2.5; } }
 * { box-sizing:border-box; }
 html { scroll-behavior:smooth; scroll-padding-top:32px; }
 body { margin:0; background:var(--cream); color:var(--ink); font-family:'Helvetica Neue ME','Helvetica Neue',Helvetica,Arial,sans-serif; font-size:16px; -webkit-font-smoothing:antialiased; }
