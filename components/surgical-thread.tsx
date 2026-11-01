@@ -3,6 +3,7 @@
 import { useEffect, useId, useRef, type RefObject } from 'react';
 
 const clamp = (n: number) => Math.max(0, Math.min(1, n));
+const smooth = (n: number) => { const p = clamp(n); return p * p * (3 - 2 * p); };
 const ns = 'http://www.w3.org/2000/svg';
 
 /** A decorative suture, measured against the actual translated page layout. */
@@ -14,21 +15,25 @@ export function SurgicalThread({ rootRef, paused }: { rootRef: RefObject<HTMLEle
     const svg = svgRef.current;
     if (!root || !svg) return;
     const path = svg.querySelector<SVGPathElement>('[data-thread-path]')!;
+    const intro = svg.querySelector<SVGPathElement>('[data-thread-intro]')!;
     const needle = svg.querySelector<SVGGElement>('[data-thread-needle]')!;
     const gradient = svg.querySelector<SVGLinearGradientElement>('[data-thread-colors]')!;
     const mask = svg.querySelector<SVGMaskElement>('mask')!;
     const sections = [...root.querySelectorAll<HTMLElement>('section.section')];
     const photos = [...root.querySelectorAll<HTMLElement>('.editorial-photo .photo-window')];
     const hero = root.querySelector<HTMLElement>('.hero-scene')!;
+    const heroPortrait = hero.querySelector<HTMLElement>('.hero')!;
     const reduce = matchMedia('(prefers-reduced-motion: reduce)');
     let frame = 0, dirty = true, total = 0, pageHeight = 0, mobile = false;
     let alive = true;
-    let segments: { from: number; to: number; offset: number; length: number }[] = [];
+    let segments: { from: number; to: number; offset: number; length: number; settle?: boolean }[] = [];
     let displayedLength: number | undefined;
     let lastTime = 0;
     let transitionDeadline = 0;
+    let followUntil = 0, startX = 0, startY = 0;
     const photoTransitions = new Map<Element, Set<string>>();
     let photoMasks: SVGPathElement[] = [];
+    let heroMask: SVGRectElement;
     let corners: number[][] = [];
     const fade = svg.querySelector<SVGLinearGradientElement>('[data-thread-fade]')!;
     const element = (tag: string, attrs: Record<string, string | number>) => {
@@ -49,8 +54,11 @@ export function SurgicalThread({ rootRef, paused }: { rootRef: RefObject<HTMLEle
         const r = s.getBoundingClientRect();
         return { top: r.top - rootBox.top, bottom: r.bottom - rootBox.top, dark: s.classList.contains('dark') };
       });
-      const start = Math.min(innerHeight, hero.offsetHeight) * .72;
-      let x = left, y = start;
+      // The body route starts at content. Its prologue is attached to the
+      // moving portrait, so no arbitrary tail is left on the opening screen.
+      startX = left;
+      startY = bounds[0].top + 24;
+      let x = left, y = startY;
       let d = `M ${x} ${y}`;
       total = 0;
       segments = [];
@@ -71,7 +79,7 @@ export function SurgicalThread({ rootRef, paused }: { rootRef: RefObject<HTMLEle
         const bend = (mobile ? 4 : 9) * (inward ? 1 : -1);
         append(`C ${x + bend} ${y + distance * .32}, ${left - bend} ${y + distance * .72}, ${left} ${endY}`, left, endY);
       };
-      const accents = [1, 3, 5];
+      const accents = [1, 3];
       sections.forEach((section, i) => {
         const { top, bottom } = bounds[i];
         if (accents.includes(i)) {
@@ -120,7 +128,20 @@ export function SurgicalThread({ rootRef, paused }: { rootRef: RefObject<HTMLEle
             }
           }
         }
-        if (i === sections.length - 1) driftTo(bottom - 65);
+        if (i === sections.length - 1) {
+          // The closing stitch belongs to the booking block. Nothing is drawn
+          // beside the clinic rows, legal copy or footer after this handoff.
+          const booking = section.querySelector<HTMLElement>('.clinics')!.getBoundingClientRect();
+          const bookingTop = booking.top - rootBox.top;
+          const loopX = Math.max(left + 14, padding - 20);
+          const endX = padding + (mobile ? 24 : 34);
+          driftTo(bookingTop - 86, false);
+          append(`C ${left} ${bookingTop - 58}, ${loopX + 9} ${bookingTop - 66}, ${loopX + 12} ${bookingTop - 42}
+            C ${loopX + 15} ${bookingTop - 20}, ${loopX - 5} ${bookingTop - 21}, ${loopX - 5} ${bookingTop - 35}
+            C ${loopX - 5} ${bookingTop - 46}, ${loopX + 12} ${bookingTop - 45}, ${loopX + 14} ${bookingTop - 29}
+            C ${loopX + 17} ${bookingTop - 14}, ${endX - 10} ${bookingTop - 12}, ${endX} ${bookingTop - 12}`, endX, bookingTop - 12);
+          segments[segments.length - 1].settle = true;
+        }
       });
       svg.setAttribute('viewBox', `0 0 ${w} ${pageHeight}`);
       svg.style.height = `${pageHeight}px`;
@@ -140,6 +161,8 @@ export function SurgicalThread({ rootRef, paused }: { rootRef: RefObject<HTMLEle
       });
       gradient.replaceChildren(...colors.map(([y, color]) => element('stop', { offset: clamp(y / pageHeight), 'stop-color': color })));
       mask.replaceChildren(element('rect', { width: w, height: pageHeight, fill: 'white' }));
+      heroMask = element('rect', { fill: 'black' }) as SVGRectElement;
+      mask.appendChild(heroMask);
       corners = photos.map(photo => {
         const style = getComputedStyle(photo), box = photo.getBoundingClientRect();
         return [style.borderTopLeftRadius, style.borderTopRightRadius, style.borderBottomRightRadius, style.borderBottomLeftRadius].flatMap(radius => {
@@ -160,29 +183,51 @@ export function SurgicalThread({ rootRef, paused }: { rootRef: RefObject<HTMLEle
       if (dirty) measure();
       const staticMode = paused || reduce.matches;
       const rootBox = root.getBoundingClientRect();
-      const maxScroll = Math.max(1, document.documentElement.scrollHeight - innerHeight);
-      const finish = clamp((scrollY / maxScroll - .92) / .08);
-      const cursorY = -rootBox.top + innerHeight * (.76 + .3 * finish);
+      const cursorY = -rootBox.top + innerHeight * .76;
       const segment = segments.find(part => cursorY <= part.to) ?? segments[segments.length - 1];
       const progress = clamp((cursorY - segment.from) / Math.max(1, segment.to - segment.from));
-      const target = staticMode ? total : segment.offset + segment.length * progress;
+      const target = staticMode ? total : segment.offset + segment.length * (segment.settle ? smooth(progress) : progress);
       // A short settling motion removes wheel/touch steps, then the RAF stops.
       // Anchor jumps and layout changes settle immediately instead of racing
       // the needle through the entire document.
       const delta = Math.min(48, Math.max(1, time - lastTime));
       lastTime = time;
       if (displayedLength === undefined || staticMode || Math.abs(target - displayedLength) > innerHeight * 1.25) displayedLength = target;
-      else displayedLength += (target - displayedLength) * (1 - Math.exp(-delta / 70));
+      else displayedLength += (target - displayedLength) * (1 - Math.exp(-delta / (segment.settle ? 110 : 70)));
       if (Math.abs(target - displayedLength) < .12) displayedLength = target;
       const length = displayedLength;
       path.style.strokeDasharray = `${total} ${total}`;
       path.style.strokeDashoffset = String(total - length);
-      const point = path.getPointAtLength(length);
-      const next = path.getPointAtLength(Math.min(total, length + 2));
-      const previous = path.getPointAtLength(Math.max(0, length - 2));
+
+      const portrait = heroPortrait.getBoundingClientRect();
+      const px = portrait.left - rootBox.left, py = portrait.top - rootBox.top;
+      for (const [name, value] of Object.entries({ x: px, y: py, width: portrait.width, height: portrait.height })) heroMask.setAttribute(name, String(value));
+      let cursorPath = path, cursorLength = length, cursorTotal = total;
+      let introVisibility = 0;
+      if (!staticMode && portrait.bottom > -80 && hero.getBoundingClientRect().top < innerHeight) {
+        const desktop = getComputedStyle(hero.querySelector<HTMLElement>('.hero-stage')!).position === 'sticky';
+        const bottom = py + portrait.height;
+        const sx = desktop ? px + 22 : startX + 42;
+        const sy = desktop ? bottom - Math.min(78, portrait.height * .12) : bottom - 8;
+        const openingRoom = Math.min(48, Math.max(12, innerWidth * .08 - startX - 8));
+        const reveal = smooth(desktop ? (px - startX - 8) / openingRoom : (innerHeight - portrait.bottom) / (innerHeight * .28));
+        const d = desktop
+          ? `M ${sx} ${sy} C ${px - 12} ${sy + 4}, ${startX} ${sy + 26}, ${startX} ${sy + 74} C ${startX} ${sy + 112}, ${startX} ${startY - 45}, ${startX} ${startY}`
+          : `M ${sx} ${sy} C ${sx} ${bottom + 12}, ${startX} ${startY - 12}, ${startX} ${startY}`;
+        intro.setAttribute('d', d);
+        const introTotal = intro.getTotalLength();
+        intro.style.strokeDasharray = `${introTotal} ${introTotal}`;
+        intro.style.strokeDashoffset = String(introTotal * (1 - reveal));
+        introVisibility = reveal;
+        if (length < .1) { cursorPath = intro; cursorTotal = introTotal; cursorLength = introTotal * reveal; }
+      }
+      intro.style.opacity = String(introVisibility * .74);
+      const point = cursorPath.getPointAtLength(cursorLength);
+      const next = cursorPath.getPointAtLength(Math.min(cursorTotal, cursorLength + 2));
+      const previous = cursorPath.getPointAtLength(Math.max(0, cursorLength - 2));
       const angle = Math.atan2(next.y - previous.y, next.x - previous.x) * 180 / Math.PI - 90;
       needle.setAttribute('transform', `translate(${point.x} ${point.y}) rotate(${angle}) scale(${mobile ? .68 : .9})`);
-      const visibility = clamp(length / 18) * clamp((total - length) / 28);
+      const visibility = cursorPath === intro ? smooth(introVisibility / .35) : clamp((length + introVisibility * 18) / 18) * smooth((total - length) / 42);
       needle.style.opacity = staticMode ? '0' : String(visibility);
       photos.forEach((photo, i) => {
         const rect = photo.getBoundingClientRect();
@@ -193,10 +238,14 @@ export function SurgicalThread({ rootRef, paused }: { rootRef: RefObject<HTMLEle
         if (photo.closest('.appointment-photo')) { fade.setAttribute('y1', String(y)); fade.setAttribute('y2', String(b)); }
       });
       svg.dataset.static = String(staticMode);
-      if (!staticMode && (displayedLength !== target || (photoTransitions.size > 0 && time < transitionDeadline))) schedule();
+      svg.dataset.phase = staticMode ? 'static' : cursorPath === intro && introVisibility > 0 ? 'intro' : length < .1 ? 'rest' : total - length < .1 ? 'complete' : 'body';
+      if (!staticMode && (displayedLength !== target || time < followUntil || (photoTransitions.size > 0 && time < transitionDeadline))) schedule();
     };
     const schedule = () => { if (!frame && alive) frame = requestAnimationFrame(update); };
     const resize = () => { dirty = true; schedule(); };
+    // The portrait's scroll styles are written by the parent motion hook.
+    // Follow briefly after the event so its new geometry is also masked.
+    const scroll = () => { followUntil = performance.now() + 120; schedule(); };
     const transition = (event: TransitionEvent) => {
       const target = event.target;
       if (!(target instanceof Element) || !target.closest('.editorial-photo')) return;
@@ -218,7 +267,7 @@ export function SurgicalThread({ rootRef, paused }: { rootRef: RefObject<HTMLEle
     const ro = new ResizeObserver(resize);
     ro.observe(root);
     sections.forEach(s => ro.observe(s));
-    addEventListener('scroll', schedule, { passive: true });
+    addEventListener('scroll', scroll, { passive: true });
     addEventListener('resize', resize, { passive: true });
     reduce.addEventListener('change', resize);
     document.fonts.ready.then(() => { if (alive) resize(); });
@@ -230,7 +279,7 @@ export function SurgicalThread({ rootRef, paused }: { rootRef: RefObject<HTMLEle
       root.removeEventListener('transitionend', transition);
       root.removeEventListener('transitioncancel', transition);
       cancelAnimationFrame(frame);
-      removeEventListener('scroll', schedule);
+      removeEventListener('scroll', scroll);
       removeEventListener('resize', resize);
       reduce.removeEventListener('change', resize);
     };
@@ -246,6 +295,7 @@ export function SurgicalThread({ rootRef, paused }: { rootRef: RefObject<HTMLEle
       <mask id={`${id}-mask`} maskUnits="userSpaceOnUse" x="0" y="0" width="100%" height="100%" />
     </defs>
     <g mask={`url(#${id}-mask)`}>
+      <path data-thread-intro className="suture-line suture-intro" stroke={`url(#${id}-thread)`} fill="none" />
       <path data-thread-path className="suture-line" stroke={`url(#${id}-thread)`} fill="none" />
       <g data-thread-needle className="suture-needle">
         <path d="M -.55 0 C -.55 11 4 21 13 26 C 5.3 21.6 .7 11 .65 0 Z" fill={`url(#${id}-metal)`} />
