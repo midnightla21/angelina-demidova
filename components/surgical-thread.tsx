@@ -79,11 +79,11 @@ export function SurgicalThread({ rootRef, paused }: { rootRef: RefObject<HTMLEle
         const bend = (mobile ? 4 : 9) * (inward ? 1 : -1);
         append(`C ${x + bend} ${y + distance * .32}, ${left - bend} ${y + distance * .72}, ${left} ${endY}`, left, endY);
       };
-      const accents = [1, 3];
+      const accents = new Set(['practice', 'voices']);
       sections.forEach((section, i) => {
         const { top, bottom } = bounds[i];
-        if (accents.includes(i)) {
-          const approachToPractice = i === 1;
+        if (accents.has(section.id)) {
+          const approachToPractice = section.id === 'practice';
           const spread = mobile ? (approachToPractice ? 32 : 24) : (approachToPractice ? Math.min(118, w * .09) : 64);
           // Stay within the empty tail of the preceding section and the next
           // section's top inset; never sweep through a heading or body copy.

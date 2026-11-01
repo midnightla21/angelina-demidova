@@ -8,6 +8,7 @@ import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuIte
 import { languages, localePath, type Locale } from '@/lib/locales';
 import { MotionWords, useSiteMotion } from '@/components/site-motion';
 import { SurgicalThread } from '@/components/surgical-thread';
+import { PatientGuides } from '@/components/patient-guides';
 import type { Dictionary } from '@/lib/i18n';
 
 const medsi = 'https://medsi.ru/doctors/demidova-angelina-olegovna/';
@@ -37,7 +38,7 @@ export default function PhysicianSite({ locale, t }: { locale: Locale; t: Dictio
   const [paused, setPaused] = useState(false);
   useSiteMotion(root, paused);
   const [portraitReady, setPortraitReady] = useState(false);
-  const navigation = [[t.navApproach, '#approach'], [t.navPractice, '#practice'], [t.navAppointment, '#appointment']];
+  const navigation = [[t.navApproach, '#approach'], [t.navPractice, '#practice'], [t.navVisit, '#patient-guide'], [t.navAppointment, '#appointment']];
   const elsewhere = [[t.medsi, medsi], [t.sm, sm], [t.reviews, reviews]];
   const steps = [[t.step1Title, t.step1Text], [t.step2Title, t.step2Text], [t.step3Title, t.step3Text], [t.step4Title, t.step4Text]];
   const methods = [[t.method1Title, t.method1Text], [t.method2Title, t.method2Text], [t.method3Title, t.method3Text], [t.method4Title, t.method4Text], [t.method5Title, t.method5Text]];
@@ -83,7 +84,7 @@ export default function PhysicianSite({ locale, t }: { locale: Locale; t: Dictio
         <nav className="hero-booking" aria-label={t.navAppointment}>
           <span className="hero-booking-label">{t.book}</span>
           <div className="hero-booking-links">
-            <External className="hero-booking-link" href={medsiBooking}><span>{t.medsi}<small>{t.solyanka} · SmartMed</small></span></External>
+            <External className="hero-booking-link" href={medsiBooking}><span>{t.medsi}<small>{t.medsiLocation} · SmartMed</small></span></External>
             <External className="hero-booking-link" href={smBooking}><span>{t.sm}<small>{t.textilshchiki}</small></span></External>
           </div>
         </nav>
@@ -119,10 +120,11 @@ export default function PhysicianSite({ locale, t }: { locale: Locale; t: Dictio
         <div className="accreditations"><span className="eyebrow">{t.accreditations}</span><p>{t.surgery}<span>{t.surgeryUntil}</span></p><p>{t.coloproctology}<span>{t.coloproctologyUntil}</span></p></div>
         <External className="credentials-source" href={sm}>{t.credentialsSource}</External>
       </section>
+      <PatientGuides t={t} />
       <section className="section appointment dark" id="appointment">
-        <SectionLabel n="06">{t.appointmentLabel}</SectionLabel>
-        <div className="appointment-heading"><div><Heading start={t.appointmentHeading} end={t.appointmentHeadingMuted} /><p className="appointment-intro"><Lines text={t.appointmentIntro} /></p></div><EditorialPhoto src="/images/clinical/doctor.png" className="appointment-photo" width={1024} height={1536} /></div>
-        <div className="clinics"><External className="clinic" href={medsiBooking}><h3>{t.medsi}<span>{t.solyanka}</span></h3><p><Lines text={t.solyankaAddress} /><span>{t.solyankaMetro}</span></p><span className="clinic-action">{t.book}</span></External><External className="clinic" href={smBooking}><h3>{t.sm}<span>{t.textilshchiki}</span></h3><p><Lines text={t.textilshchikiAddress} /><span>{t.textilshchikiMetro}</span></p><span className="clinic-action">{t.book}</span></External></div>
+        <SectionLabel n="07">{t.appointmentLabel}</SectionLabel>
+        <div className="appointment-heading"><div><Heading start={t.appointmentHeading} end={t.appointmentHeadingMuted} /><p className="appointment-intro"><Lines text={t.appointmentIntro} /></p><nav className="appointment-guides" aria-label={t.navVisit}><a href="#preparation">{t.preparationLink} <span aria-hidden="true">↗</span></a><a href="#first-visit">{t.firstVisitLink} <span aria-hidden="true">↗</span></a></nav></div><EditorialPhoto src="/images/clinical/doctor.png" className="appointment-photo" width={1024} height={1536} /></div>
+        <div className="clinics"><External className="clinic" href={medsiBooking}><h3>{t.medsi}<span>{t.medsiLocation}</span></h3><p><Lines text={t.medsiAddress} /><span>{t.medsiMetro}</span></p><span className="clinic-action">{t.book}</span></External><External className="clinic" href={smBooking}><h3>{t.sm}<span>{t.textilshchiki}</span></h3><p><Lines text={t.textilshchikiAddress} /><span>{t.textilshchikiMetro}</span></p><span className="clinic-action">{t.book}</span></External></div>
         {locale !== 'ru' && <p className="booking-language-note">{t.bookingLanguageNote}</p>}
         <p className="medical-note">{t.medicalNote}</p>
       </section>

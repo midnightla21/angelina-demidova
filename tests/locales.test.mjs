@@ -52,6 +52,12 @@ for(const [locale,lang] of Object.entries(locales)) {
     assert.ok(html.includes('hero-photo hero-foreground'),'foreground layer preserved');
     assert.ok(html.includes('https://medsi.ru/doctors/demidova-angelina-olegovna/'),'real MEDSI booking');
     assert.ok(html.includes('https://www.smclinic.ru/rezume/demidova-angelina-olegovna/'),'real SM booking');
+    assert.ok(html.includes('https://smartmed.pro/doctors/s/e8af5eda-b36c-42cb-a5ba-2d63c50a38c4/?isRecordable=true'),'current physician-specific SmartMed destination');
+    const readable = decode(html);
+    for (const key of ['medsiAddress','prepNo1','prepNo2','prepNo3','prepImportant','prepFoodText','prepAfternoonText','prepMissingDocs','visitPause','visitExamText2','visitImportant2']) {
+      assert.ok(readable.includes(dictionaries[locale][key]), `${locale}: server-rendered patient information ${key}`);
+    }
+    for (const anchor of ['patient-guide','preparation','first-visit']) assert.ok(html.includes(`id="${anchor}"`), `${locale}: direct guide destination ${anchor}`);
   });
 }
 test('Unknown language is 404 and Russian alias redirects to the original homepage',async()=>{
